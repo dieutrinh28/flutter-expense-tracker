@@ -1,38 +1,33 @@
 part of 'expense_list_bloc.dart';
 
-abstract class ExpenseListState extends Equatable {
-  const ExpenseListState();
+enum ExpenseOperation { none, loading, deleting }
 
-  @override
-  List<Object?> get props => [];
-}
-
-class ExpenseListInitial extends ExpenseListState {
-  const ExpenseListInitial();
-}
-
-class ExpenseListLoading extends ExpenseListState {
-  const ExpenseListLoading();
-}
-
-class ExpenseListLoaded extends ExpenseListState {
+class ExpenseListState extends Equatable {
   final List<Expense> expenses;
+  final ExpenseOperation operation;
+  final String? errorMessage;
 
-  const ExpenseListLoaded(this.expenses);
+  const ExpenseListState({
+    this.expenses = const [],
+    this.operation = ExpenseOperation.none,
+    this.errorMessage,
+  });
+
+  bool get isLoading => operation == ExpenseOperation.loading;
+  bool get isDeleting => operation == ExpenseOperation.deleting;
+  bool get isEmpty => operation == ExpenseOperation.none && expenses.isEmpty;
+
+  ExpenseListState copyWith({
+    List<Expense>? expenses,
+    ExpenseOperation? operation,
+    String? errorMessage,
+  }) =>
+      ExpenseListState(
+        expenses: expenses ?? this.expenses,
+        operation: operation ?? this.operation,
+        errorMessage: errorMessage,
+      );
 
   @override
-  List<Object?> get props => [expenses];
-}
-
-class ExpenseListError extends ExpenseListState {
-  final String message;
-
-  const ExpenseListError(this.message);
-
-  @override
-  List<Object?> get props => [message];
-}
-
-class ExpenseListEmpty extends ExpenseListState {
-  const ExpenseListEmpty();
+  List<Object?> get props => throw UnimplementedError();
 }

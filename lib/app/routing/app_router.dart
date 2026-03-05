@@ -21,9 +21,8 @@ final appRouter = GoRouter(
             return BlocProvider(
               create: (_) => ExpenseListBloc(
                 getExpenses: ServiceProvider.getExpenses,
-                addExpense: ServiceProvider.addExpense,
-                updateExpense: ServiceProvider.updateExpense,
                 deleteExpense: ServiceProvider.deleteExpense,
+                runner: ServiceProvider.blocSafeRunner,
               )..add(const LoadExpenses()),
               child: const ExpenseListScreen(),
             );

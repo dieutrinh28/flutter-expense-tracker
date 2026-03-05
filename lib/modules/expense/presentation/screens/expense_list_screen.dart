@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -6,8 +8,43 @@ import '../../../../core/theme/spacing.dart';
 import '../../../../core/theme/typography.dart';
 import '../blocs/expense_list_bloc/expense_list_bloc.dart';
 
-class ExpenseListScreen extends StatelessWidget {
+class ExpenseListScreen extends StatefulWidget {
   const ExpenseListScreen({super.key});
+
+  @override
+  State<ExpenseListScreen> createState() => _ExpenseListScreenState();
+}
+
+class _ExpenseListScreenState extends State<ExpenseListScreen> {
+  late final StreamSubscription _effectSub;
+
+  @override
+  void initState() {
+    super.initState();
+    _effectSub = context.read<ExpenseListBloc>().effects.listen(_handleEffect);
+  }
+
+  void _handleEffect(ExpenseListEffect effect) {
+    switch (effect) {
+      case ShowDeleteSuccessEffect():
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Expense deleted')),
+        );
+      case ShowErrorEffect(:final message):
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: Colors.red,
+          ),
+        );
+    }
+  }
+
+  @override
+  void dispose() {
+    _effectSub.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,30 +54,15 @@ class ExpenseListScreen extends StatelessWidget {
       ),
       body: BlocBuilder<ExpenseListBloc, ExpenseListState>(
         builder: (context, state) {
-          if (state is ExpenseListLoading) {
-            return const _LoadingState();
+          if (state.isLoading) return const _LoadingState();
+          if (state.isEmpty) return const _EmptyState();
+          if (state.errorMessage != null) {
+            return _ErrorState(message: state.errorMessage!);
           }
-
-          if (state is ExpenseListError) {
-            return _ErrorState(message: state.message);
-          }
-
-          if (state is ExpenseListEmpty) {
-            return const _EmptyState();
-          }
-
-          if (state is ExpenseListLoaded) {
-            final totalAmount = state.expenses.fold<double>(
-              0.0,
-              (sum, expense) => sum + expense.amount,
-            );
-            return _LoadedState(
-              expenses: state.expenses,
-              totalAmount: totalAmount,
-            );
-          }
-
-          return const SizedBox.shrink();
+          return _LoadedState(
+            expenses: state.expenses,
+            isDeleting: state.isDeleting,
+          );
         },
       ),
     );
@@ -180,47 +202,58 @@ class _EmptyState extends StatelessWidget {
 
 class _LoadedState extends StatelessWidget {
   final List expenses;
-  final double totalAmount;
+  final bool isDeleting;
 
   const _LoadedState({
     required this.expenses,
-    required this.totalAmount,
+    required this.isDeleting,
   });
+
+  double get _totalAmount => expenses.fold(0.0, (sum, e) => sum + e.amount);
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        // Summary Card
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: _SummaryCard(
-              totalAmount: totalAmount,
-              expenseCount: expenses.length,
+    return Stack(
+      children: [
+        CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: _SummaryCard(
+                  totalAmount: _totalAmount,
+                  expenseCount: expenses.length,
+                ),
+              ),
+            ),
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final expense = expenses[index];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                      vertical: AppSpacing.sm,
+                    ),
+                    child: _ExpenseCard(expense: expense),
+                  );
+                },
+                childCount: expenses.length,
+              ),
+            ),
+            // Bottom padding
+            SliverToBoxAdapter(
+              child: SizedBox(height: AppSpacing.lg),
+            ),
+          ],
+        ),
+        if (isDeleting)
+          Container(
+            color: Colors.black12,
+            child: const Center(
+              child: CircularProgressIndicator(),
             ),
           ),
-        ),
-        // Expenses List
-        SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              final expense = expenses[index];
-              return Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.md,
-                  vertical: AppSpacing.sm,
-                ),
-                child: _ExpenseCard(expense: expense),
-              );
-            },
-            childCount: expenses.length,
-          ),
-        ),
-        // Bottom padding
-        SliverToBoxAdapter(
-          child: SizedBox(height: AppSpacing.lg),
-        ),
       ],
     );
   }
@@ -305,7 +338,8 @@ class _ExpenseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final categoryColor = ColorPalette.getCategoryColor(expense.category);
-    final categoryBgColor = ColorPalette.getCategoryLightColor(expense.category);
+    final categoryBgColor =
+        ColorPalette.getCategoryLightColor(expense.category);
 
     return Container(
       decoration: BoxDecoration(
@@ -403,7 +437,8 @@ class _ExpenseCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xs),
-                if (expense.description != null && expense.description!.isNotEmpty)
+                if (expense.description != null &&
+                    expense.description!.isNotEmpty)
                   Text(
                     'Has note',
                     style: AppTypography.caption.copyWith(
