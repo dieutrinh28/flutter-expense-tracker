@@ -1,25 +1,19 @@
 import '../../../../core/database/expense_database.dart';
 import '../../../../core/database/database_service.dart';
-import '../../../../core/database/mock_database_service.dart';
 import '../models/expense_model.dart';
 
-abstract class LocalExpenseDataSource {
+abstract class ExpenseLocalDataSource {
   Future<int> addExpense(ExpenseModel expense);
   Future<List<ExpenseModel>> getAllExpenses();
   Future<int> updateExpense(ExpenseModel expense);
   Future<int> deleteExpense(int id);
 }
 
-class LocalExpenseDataSourceImpl implements LocalExpenseDataSource {
+class ExpenseLocalDataSourceImpl implements ExpenseLocalDataSource {
   final ExpenseDatabase _dbService;
 
-  // Constructor for real database
-  LocalExpenseDataSourceImpl({ExpenseDatabase? dbService})
+  ExpenseLocalDataSourceImpl({ExpenseDatabase? dbService})
       : _dbService = dbService ?? DatabaseService();
-
-  // Constructor for mock database
-  LocalExpenseDataSourceImpl.mock(MockDatabaseService mockDbService)
-      : _dbService = mockDbService;
 
   @override
   Future<int> addExpense(ExpenseModel expense) async {

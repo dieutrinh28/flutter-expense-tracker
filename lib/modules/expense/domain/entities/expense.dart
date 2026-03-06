@@ -21,7 +21,6 @@ class Expense extends Equatable {
     this.updatedAt,
   });
 
-  // Copy with
   Expense copyWith({
     int? id,
     String? title,
@@ -44,7 +43,6 @@ class Expense extends Equatable {
     );
   }
 
-  // To JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -58,7 +56,6 @@ class Expense extends Equatable {
     };
   }
 
-  // From JSON
   factory Expense.fromJson(Map<String, dynamic> json) {
     return Expense(
       id: json['id'],

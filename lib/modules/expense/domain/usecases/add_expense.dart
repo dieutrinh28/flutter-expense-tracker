@@ -2,11 +2,11 @@ import '../entities/expense.dart';
 import '../repositories/expense_repository.dart';
 
 class AddExpense {
-  final ExpenseRepository repository;
+  final ExpenseRepository _repository;
 
-  AddExpense(this.repository);
+  AddExpense(this._repository);
 
   Future<int> call(Expense expense) async {
-    return await repository.addExpense(expense);
+    return await _repository.addExpense(expense);
   }
 }

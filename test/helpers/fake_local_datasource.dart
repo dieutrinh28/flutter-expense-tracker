@@ -1,7 +1,7 @@
 import 'package:expense_tracker/modules/expense/data/datasources/expense_local_ds.dart';
 import 'package:expense_tracker/modules/expense/data/models/expense_model.dart';
 
-class FakeLocalExpenseDataSource implements LocalExpenseDataSource {
+class FakeLocalExpenseDataSource implements ExpenseLocalDataSource {
   final Map<int, ExpenseModel> _store = {};
   int _autoInc = 1;
 
