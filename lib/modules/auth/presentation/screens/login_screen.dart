@@ -4,6 +4,7 @@ import 'package:expense_tracker/core/theme/color_palette.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/typography.dart';
 import '../blocs/auth_bloc/auth_bloc.dart';
@@ -33,11 +34,9 @@ class _LoginScreenState extends State<LoginScreen> {
   void _handleEffect(AuthEffect effect) {
     switch (effect) {
       case NavigateToHomeEffect():
-        return;
-      // context.read<NavigationService>().goToHome();
+        context.go('/home');
       case NavigateToLoginEffect():
-        return;
-      // context.read<NavigationService>().goToLogin();
+        context.go('/login');
       case ShowErrorEffect(:final message):
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -85,16 +84,14 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: BlocBuilder<AuthBloc, AuthState>(
-          builder: (context, state) {
-            final isLoading = state is AuthLoggingIn;
+      body: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, state) {
+          final isLoading = state is AuthLoggingIn;
 
-            return Padding(
+          return Center(
+            child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Center(
                     child: Container(
@@ -209,9 +206,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ],
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }

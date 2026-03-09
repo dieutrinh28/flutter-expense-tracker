@@ -21,6 +21,28 @@ class ExpenseModel {
     this.updatedAt,
   });
 
+  ExpenseModel copyWith({
+    int? id,
+    String? title,
+    double? amount,
+    String? category,
+    DateTime? date,
+    String? description,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return ExpenseModel(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      amount: amount ?? this.amount,
+      category: category ?? this.category,
+      date: date ?? this.date,
+      description: description ?? this.description,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
   factory ExpenseModel.fromMap(Map<String, dynamic> map) {
     return ExpenseModel(
       id: map['id'] as int?,
@@ -30,7 +52,9 @@ class ExpenseModel {
       date: DateTime.parse(map['date'] as String),
       description: map['description'] as String?,
       createdAt: DateTime.parse(map['created_at'] as String),
-      updatedAt: map['updated_at'] != null ? DateTime.parse(map['updated_at'] as String) : null,
+      updatedAt: map['updated_at'] != null
+          ? DateTime.parse(map['updated_at'] as String)
+          : null,
     );
   }
 

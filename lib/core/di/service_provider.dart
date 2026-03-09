@@ -1,19 +1,22 @@
+import 'package:expense_tracker/modules/expense/data/datasources/mock_expense_local_ds.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../modules/auth/data/datasources/auth_local_ds.dart';
 import '../../modules/auth/data/datasources/auth_remote_ds.dart';
+import '../../modules/auth/data/datasources/mock_auth_local_ds.dart';
+import '../../modules/auth/data/datasources/mock_auth_remote_ds.dart';
 import '../../modules/auth/data/repositories/auth_repository_impl.dart';
 import '../../modules/auth/domain/repositories/auth_repository.dart';
 import '../../modules/auth/domain/usecases/check_auth.dart';
 import '../../modules/auth/domain/usecases/login.dart';
 import '../../modules/auth/domain/usecases/logout.dart';
 import '../../modules/expense/domain/repositories/expense_repository.dart';
+import '../database/sqflite_expense_database.dart';
 import '../database/expense_database.dart';
 import '../../modules/expense/data/datasources/expense_local_ds.dart';
 import '../../modules/expense/data/repositories/expense_repository_impl.dart';
 import '../../modules/expense/domain/usecases/delete_expense.dart';
 import '../../modules/expense/domain/usecases/get_expenses.dart';
-import '../database/mock_database_service.dart';
 import '../logging/app_logger.dart';
 import '../network/dio_client.dart';
 import '../utils/bloc_safe_runner.dart';
@@ -57,16 +60,21 @@ class ServiceProvider {
     _prefs = await SharedPreferences.getInstance();
 
     // Auth
-    _authRemote = AuthRemoteDataSourceImpl(_dioClient);
-    _authLocal = AuthLocalDataSourceImpl(_prefs);
+    // _authRemote = AuthRemoteDataSourceImpl(_dioClient);
+    // _authLocal = AuthLocalDataSourceImpl(_prefs);
+
+    _authRemote = MockAuthRemoteDataSource();
+    _authLocal = MockAuthLocalDataSource();
     _authRepo = AuthRepositoryImpl(remote: _authRemote, local: _authLocal);
     _loginUseCase = LoginUseCase(_authRepo);
     _logoutUseCase = LogoutUseCase(_authRepo);
     _checkAuthUseCase = CheckAuthUseCase(_authRepo);
 
     // Expense
-    _dbService = MockDatabaseService();
-    _localDatasource = ExpenseLocalDataSourceImpl(dbService: _dbService);
+    _dbService = SQLiteExpenseDatabase();
+    // _localDatasource = ExpenseLocalDataSourceImpl(dbService: _dbService);
+
+    _localDatasource = MockExpenseLocalDataSource();
     _expenseRepo = ExpenseRepositoryImpl(local: _localDatasource);
     _getExpenses = GetExpenses(_expenseRepo);
     _deleteExpense = DeleteExpense(_expenseRepo);

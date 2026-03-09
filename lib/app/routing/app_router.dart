@@ -15,7 +15,7 @@ final appRouter = GoRouter(
     final isLoginRoute = state.matchedLocation == '/login';
 
     return switch (authState) {
-      AuthAuthenticated() => isLoginRoute ? '/' : null,
+      AuthAuthenticated() => isLoginRoute ? '/home' : null,
       AuthUnauthenticated() => isLoginRoute ? null : '/login',
       AuthError() => isLoginRoute ? null : '/login',
       _ => null,

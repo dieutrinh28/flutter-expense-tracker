@@ -1,5 +1,5 @@
 import '../../../../core/database/expense_database.dart';
-import '../../../../core/database/database_service.dart';
+import '../../../../core/database/sqflite_expense_database.dart';
 import '../models/expense_model.dart';
 
 abstract class ExpenseLocalDataSource {
@@ -13,7 +13,7 @@ class ExpenseLocalDataSourceImpl implements ExpenseLocalDataSource {
   final ExpenseDatabase _dbService;
 
   ExpenseLocalDataSourceImpl({ExpenseDatabase? dbService})
-      : _dbService = dbService ?? DatabaseService();
+      : _dbService = dbService ?? SQLiteExpenseDatabase();
 
   @override
   Future<int> addExpense(ExpenseModel expense) async {

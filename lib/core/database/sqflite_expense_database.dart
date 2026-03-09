@@ -3,15 +3,15 @@ import 'package:path/path.dart';
 import '../../modules/expense/domain/entities/expense.dart';
 import 'expense_database.dart';
 
-class DatabaseService implements ExpenseDatabase {
-  static final DatabaseService _instance = DatabaseService._internal();
+class SQLiteExpenseDatabase implements ExpenseDatabase {
+  static final SQLiteExpenseDatabase _instance = SQLiteExpenseDatabase._internal();
   static Database? _database;
 
-  factory DatabaseService() {
+  factory SQLiteExpenseDatabase() {
     return _instance;
   }
 
-  DatabaseService._internal();
+  SQLiteExpenseDatabase._internal();
 
   Future<Database> get database async {
     _database ??= await _initializeDatabase();
