@@ -15,6 +15,9 @@ import '../database/sqflite_expense_database.dart';
 import '../database/expense_database.dart';
 import '../../modules/expense/data/datasources/expense_local_ds.dart';
 import '../../modules/expense/data/repositories/expense_repository_impl.dart';
+import '../../modules/expense/domain/usecases/add_expense.dart';
+import '../../modules/expense/domain/usecases/update_expense.dart';
+import '../../modules/expense/domain/usecases/get_expense.dart';
 import '../../modules/expense/domain/usecases/delete_expense.dart';
 import '../../modules/expense/domain/usecases/get_expenses.dart';
 import '../logging/app_logger.dart';
@@ -51,6 +54,9 @@ class ServiceProvider {
   static late final ExpenseRepository _expenseRepo;
   static late final GetExpenses _getExpenses;
   static late final DeleteExpense _deleteExpense;
+  static late final AddExpense _addExpense;
+  static late final UpdateExpense _updateExpense;
+  static late final GetExpense _getExpense;
 
   static Future<void> initialize() async {
     // Infrastructure
@@ -78,6 +84,9 @@ class ServiceProvider {
     _expenseRepo = ExpenseRepositoryImpl(local: _localDatasource);
     _getExpenses = GetExpenses(_expenseRepo);
     _deleteExpense = DeleteExpense(_expenseRepo);
+    _addExpense = AddExpense(_expenseRepo);
+    _updateExpense = UpdateExpense(_expenseRepo);
+    _getExpense = GetExpense(_expenseRepo);
   }
 
   // === Public getters ===
@@ -94,4 +103,7 @@ class ServiceProvider {
   // Expense
   static GetExpenses get getExpenses => _getExpenses;
   static DeleteExpense get deleteExpense => _deleteExpense;
+  static AddExpense get addExpense => _addExpense;
+  static UpdateExpense get updateExpense => _updateExpense;
+  static GetExpense get getExpense => _getExpense;
 }

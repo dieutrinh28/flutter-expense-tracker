@@ -6,7 +6,7 @@ class AddExpense {
 
   AddExpense(this._repository);
 
-  Future<int> call(Expense expense) async {
+  Future<Expense> call(Expense expense) async {
     return await _repository.addExpense(expense);
   }
 }

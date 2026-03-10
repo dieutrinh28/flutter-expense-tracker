@@ -47,7 +47,7 @@ class ExpenseListBloc extends Bloc<ExpenseListEvent, ExpenseListState> {
         operation: ExpenseOperation.none,
         errorMessage: error.message,
       ),
-      errorEffect: (error) => ShowErrorEffect(error.message),
+      errorEffect: (error) => ShowErrorDialog(error.message),
       logContext: {'bloc': 'ExpenseListBloc', 'event': 'LoadExpenses'},
     );
   }
@@ -68,7 +68,7 @@ class ExpenseListBloc extends Bloc<ExpenseListEvent, ExpenseListState> {
         operation: ExpenseOperation.none,
         errorMessage: error.message,
       ),
-      errorEffect: (error) => ShowErrorEffect(error.message),
+      errorEffect: (error) => ShowErrorDialog(error.message),
       successEffect: ShowDeleteSuccessEffect(),
       logContext: {
         'bloc': 'ExpenseListBloc',

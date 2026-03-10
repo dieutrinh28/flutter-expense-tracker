@@ -1,10 +1,10 @@
 import '../../domain/entities/expense.dart';
 
 class ExpenseModel {
-  final int? id;
+  final String? id;
   final String title;
   final double amount;
-  final String category;
+  final String categoryId;
   final DateTime date;
   final String? description;
   final DateTime createdAt;
@@ -14,7 +14,7 @@ class ExpenseModel {
     this.id,
     required this.title,
     required this.amount,
-    required this.category,
+    required this.categoryId,
     required this.date,
     this.description,
     required this.createdAt,
@@ -22,10 +22,10 @@ class ExpenseModel {
   });
 
   ExpenseModel copyWith({
-    int? id,
+    String? id,
     String? title,
     double? amount,
-    String? category,
+    String? categoryId,
     DateTime? date,
     String? description,
     DateTime? createdAt,
@@ -35,7 +35,7 @@ class ExpenseModel {
       id: id ?? this.id,
       title: title ?? this.title,
       amount: amount ?? this.amount,
-      category: category ?? this.category,
+      categoryId: categoryId ?? this.categoryId,
       date: date ?? this.date,
       description: description ?? this.description,
       createdAt: createdAt ?? this.createdAt,
@@ -45,10 +45,10 @@ class ExpenseModel {
 
   factory ExpenseModel.fromMap(Map<String, dynamic> map) {
     return ExpenseModel(
-      id: map['id'] as int?,
+      id: map['id']?.toString(),
       title: map['title'] as String,
       amount: (map['amount'] as num).toDouble(),
-      category: map['category'] as String,
+      categoryId: map['categoryId'].toString(),
       date: DateTime.parse(map['date'] as String),
       description: map['description'] as String?,
       createdAt: DateTime.parse(map['created_at'] as String),
@@ -63,7 +63,7 @@ class ExpenseModel {
       if (id != null) 'id': id,
       'title': title,
       'amount': amount,
-      'category': category,
+      'categoryId': categoryId,
       'date': date.toIso8601String(),
       'description': description,
       'created_at': createdAt.toIso8601String(),
@@ -76,7 +76,7 @@ class ExpenseModel {
       id: id,
       title: title,
       amount: amount,
-      category: category,
+      categoryId: categoryId,
       date: date,
       description: description,
       createdAt: createdAt,
@@ -89,7 +89,7 @@ class ExpenseModel {
       id: e.id,
       title: e.title,
       amount: e.amount,
-      category: e.category,
+      categoryId: e.categoryId,
       date: e.date,
       description: e.description,
       createdAt: e.createdAt,

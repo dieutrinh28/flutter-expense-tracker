@@ -1,3 +1,5 @@
+import 'package:expense_tracker/modules/expense/domain/entities/expense_detail.dart';
+
 import '../../domain/entities/expense.dart';
 import '../../domain/repositories/expense_repository.dart';
 import '../datasources/expense_local_ds.dart';
@@ -9,14 +11,15 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
   ExpenseRepositoryImpl({required ExpenseLocalDataSource local}) : _local = local;
 
   @override
-  Future<int> addExpense(Expense expense) async {
+  Future<Expense> addExpense(Expense expense) async {
     final model = ExpenseModel.fromEntity(expense);
     return await _local.addExpense(model);
   }
 
   @override
-  Future<int> deleteExpense(int id) async {
-    return await _local.deleteExpense(id);
+  Future<Expense> updateExpense(Expense expense) async {
+    final model = ExpenseModel.fromEntity(expense);
+    return await _local.updateExpense(model);
   }
 
   @override
@@ -26,8 +29,15 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
   }
 
   @override
-  Future<int> updateExpense(Expense expense) async {
-    final model = ExpenseModel.fromEntity(expense);
-    return await _local.updateExpense(model);
+  Future<ExpenseDetail?> getById(String id) async {
+    final expense = await _local.getById(id);
+    // todo:
+    return null;
   }
+
+  @override
+  Future<int> deleteExpense(String id) async {
+    return await _local.deleteExpense(id);
+  }
+
 }

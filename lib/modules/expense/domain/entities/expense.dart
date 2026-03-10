@@ -1,10 +1,10 @@
 import 'package:equatable/equatable.dart';
 
 class Expense extends Equatable {
-  final int? id;
+  final String? id;
   final String title;
   final double amount;
-  final String category;
+  final String categoryId;
   final DateTime date;
   final String? description;
   final DateTime createdAt;
@@ -14,7 +14,7 @@ class Expense extends Equatable {
     this.id,
     required this.title,
     required this.amount,
-    required this.category,
+    required this.categoryId,
     required this.date,
     this.description,
     required this.createdAt,
@@ -22,10 +22,10 @@ class Expense extends Equatable {
   });
 
   Expense copyWith({
-    int? id,
+    String? id,
     String? title,
     double? amount,
-    String? category,
+    String? categoryId,
     DateTime? date,
     String? description,
     DateTime? createdAt,
@@ -35,7 +35,7 @@ class Expense extends Equatable {
       id: id ?? this.id,
       title: title ?? this.title,
       amount: amount ?? this.amount,
-      category: category ?? this.category,
+      categoryId: categoryId ?? this.categoryId,
       date: date ?? this.date,
       description: description ?? this.description,
       createdAt: createdAt ?? this.createdAt,
@@ -48,7 +48,7 @@ class Expense extends Equatable {
       'id': id,
       'title': title,
       'amount': amount,
-      'category': category,
+      'categoryId': categoryId,
       'date': date.toIso8601String(),
       'description': description,
       'created_at': createdAt.toIso8601String(),
@@ -58,10 +58,10 @@ class Expense extends Equatable {
 
   factory Expense.fromJson(Map<String, dynamic> json) {
     return Expense(
-      id: json['id'],
+      id: json['id']?.toString(),
       title: json['title'],
       amount: json['amount'].toDouble(),
-      category: json['category'],
+      categoryId: json['categoryId'].toString(),
       date: DateTime.parse(json['date']),
       description: json['description'],
       createdAt: DateTime.parse(json['created_at']),
@@ -74,7 +74,7 @@ class Expense extends Equatable {
     id,
     title,
     amount,
-    category,
+    categoryId,
     date,
     description,
     createdAt,

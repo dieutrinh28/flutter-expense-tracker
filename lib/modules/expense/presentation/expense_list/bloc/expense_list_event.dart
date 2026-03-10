@@ -12,7 +12,7 @@ class LoadExpenses extends ExpenseListEvent {
 }
 
 class DeleteExpenseEvent extends ExpenseListEvent {
-  final int id;
+  final String id;
 
   const DeleteExpenseEvent(this.id);
 

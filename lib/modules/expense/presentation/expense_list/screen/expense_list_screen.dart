@@ -1,12 +1,12 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import '../../../../core/theme/color_palette.dart';
-import '../../../../core/theme/spacing.dart';
-import '../../../../core/theme/typography.dart';
-import '../blocs/expense_list_bloc/expense_list_bloc.dart';
+import '../../../../../core/theme/color_palette.dart';
+import '../../../../../core/theme/spacing.dart';
+import '../../../../../core/theme/typography.dart';
+import '../bloc/expense_list_bloc.dart';
 
 class ExpenseListScreen extends StatefulWidget {
   const ExpenseListScreen({super.key});
@@ -30,7 +30,7 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Expense deleted')),
         );
-      case ShowErrorEffect(:final message):
+      case ShowErrorDialog(:final message):
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(message),
@@ -51,6 +51,16 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Expenses'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add_rounded, size: 28),
+            onPressed: () => context.pushNamed(
+              'expense_form',
+              pathParameters: {'mode': 'create'},
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: BlocBuilder<ExpenseListBloc, ExpenseListState>(
         builder: (context, state) {
@@ -337,9 +347,9 @@ class _ExpenseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final categoryColor = ColorPalette.getCategoryColor(expense.category);
+    final categoryColor = ColorPalette.getCategoryColor(expense.categoryId);
     final categoryBgColor =
-        ColorPalette.getCategoryLightColor(expense.category);
+        ColorPalette.getCategoryLightColor(expense.categoryId);
 
     return Container(
       decoration: BoxDecoration(
@@ -370,7 +380,7 @@ class _ExpenseCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(AppSpacing.radiusSmall),
               ),
               child: Center(
-                child: _getCategoryIcon(expense.category, categoryColor),
+                child: _getCategoryIcon(expense.categoryId, categoryColor),
               ),
             ),
             const SizedBox(width: AppSpacing.md),
@@ -404,7 +414,7 @@ class _ExpenseCard extends StatelessWidget {
                           vertical: AppSpacing.xs,
                         ),
                         child: Text(
-                          expense.category,
+                          expense.categoryId,
                           style: AppTypography.caption.copyWith(
                             color: categoryColor,
                             fontWeight: FontWeight.w600,

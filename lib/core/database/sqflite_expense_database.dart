@@ -4,7 +4,8 @@ import '../../modules/expense/domain/entities/expense.dart';
 import 'expense_database.dart';
 
 class SQLiteExpenseDatabase implements ExpenseDatabase {
-  static final SQLiteExpenseDatabase _instance = SQLiteExpenseDatabase._internal();
+  static final SQLiteExpenseDatabase _instance =
+      SQLiteExpenseDatabase._internal();
   static Database? _database;
 
   factory SQLiteExpenseDatabase() {
@@ -32,10 +33,10 @@ class SQLiteExpenseDatabase implements ExpenseDatabase {
   Future<void> _onCreate(Database db, int version) async {
     await db.execute('''
       CREATE TABLE expenses (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id TEXT PRIMARY KEY,
         title TEXT NOT NULL,
         amount REAL NOT NULL,
-        category TEXT NOT NULL,
+        categoryId TEXT NOT NULL,
         date TEXT NOT NULL,
         description TEXT,
         created_at TEXT NOT NULL,
@@ -47,13 +48,21 @@ class SQLiteExpenseDatabase implements ExpenseDatabase {
   // CRUD Operations for Expense
 
   @override
-  Future<int> insertExpense(Expense expense) async {
+  Future<Expense> insertExpense(Expense expense) async {
     final db = await database;
-    return await db.insert('expenses', expense.toJson());
+    final id = expense.id ?? DateTime.now().millisecondsSinceEpoch.toString();
+    final expenseWithId = expense.copyWith(id: id);
+
+    await db.insert(
+      'expenses',
+      expenseWithId.toJson(),
+    );
+
+    return expenseWithId;
   }
 
   @override
-  Future<Expense?> getExpenseById(int id) async {
+  Future<Expense?> getExpenseById(String id) async {
     final db = await database;
     final maps = await db.query(
       'expenses',
@@ -73,18 +82,23 @@ class SQLiteExpenseDatabase implements ExpenseDatabase {
   }
 
   @override
-  Future<int> updateExpense(Expense expense) async {
+  Future<Expense> updateExpense(Expense expense) async {
     final db = await database;
-    return await db.update(
+
+    final updatedExpense = expense.copyWith(updatedAt: DateTime.now());
+
+    await db.update(
       'expenses',
-      expense.copyWith(updatedAt: DateTime.now()).toJson(),
+      updatedExpense.toJson(),
       where: 'id = ?',
       whereArgs: [expense.id],
     );
+
+    return updatedExpense;
   }
 
   @override
-  Future<int> deleteExpense(int id) async {
+  Future<int> deleteExpense(String id) async {
     final db = await database;
     return await db.delete(
       'expenses',

@@ -4,7 +4,7 @@ sealed class ExpenseListEffect {}
 
 class ShowDeleteSuccessEffect extends ExpenseListEffect {}
 
-class ShowErrorEffect extends ExpenseListEffect {
+class ShowErrorDialog extends ExpenseListEffect {
   final String message;
-  ShowErrorEffect(this.message);
+  ShowErrorDialog(this.message);
 }

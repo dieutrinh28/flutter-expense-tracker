@@ -1,12 +1,14 @@
 import '../../../../core/database/expense_database.dart';
 import '../../../../core/database/sqflite_expense_database.dart';
+import '../../domain/entities/expense.dart';
 import '../models/expense_model.dart';
 
 abstract class ExpenseLocalDataSource {
-  Future<int> addExpense(ExpenseModel expense);
+  Future<Expense> addExpense(ExpenseModel expense);
+  Future<Expense> updateExpense(ExpenseModel expense);
   Future<List<ExpenseModel>> getAllExpenses();
-  Future<int> updateExpense(ExpenseModel expense);
-  Future<int> deleteExpense(int id);
+  Future<ExpenseModel?> getById(String id);
+  Future<int> deleteExpense(String id);
 }
 
 class ExpenseLocalDataSourceImpl implements ExpenseLocalDataSource {
@@ -16,13 +18,13 @@ class ExpenseLocalDataSourceImpl implements ExpenseLocalDataSource {
       : _dbService = dbService ?? SQLiteExpenseDatabase();
 
   @override
-  Future<int> addExpense(ExpenseModel expense) async {
+  Future<Expense> addExpense(ExpenseModel expense) async {
     return await _dbService.insertExpense(expense.toEntity());
   }
 
   @override
-  Future<int> deleteExpense(int id) async {
-    return await _dbService.deleteExpense(id);
+  Future<Expense> updateExpense(ExpenseModel expense) async {
+    return await _dbService.updateExpense(expense.toEntity());
   }
 
   @override
@@ -32,8 +34,18 @@ class ExpenseLocalDataSourceImpl implements ExpenseLocalDataSource {
   }
 
   @override
-  Future<int> updateExpense(ExpenseModel expense) async {
-    return await _dbService.updateExpense(expense.toEntity());
+  Future<ExpenseModel?> getById(String id) async {
+    final expense = await _dbService.getExpenseById(id);
+    if (expense != null) {
+      return ExpenseModel.fromEntity(expense);
+    }
+    return null;
   }
+
+  @override
+  Future<int> deleteExpense(String id) async {
+    return await _dbService.deleteExpense(id);
+  }
+
 }
 
