@@ -2,30 +2,31 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../models/user_model.dart';
+import '../models/user_dto.dart';
 
 abstract class AuthLocalDataSource {
-  Future<void> saveUser(UserModel user);
-  Future<UserModel?> getStoredUser();
+  Future<void> saveUser(UserDto user);
+  Future<UserDto?> getStoredUser();
   Future<void> clearUser();
 }
 
 class AuthLocalDataSourceImpl implements AuthLocalDataSource {
-  static const String _userKey = 'stored_user';
   final SharedPreferences _prefs;
 
-  AuthLocalDataSourceImpl(this._prefs);
+  const AuthLocalDataSourceImpl(this._prefs);
+
+  static const String _userKey = 'stored_user';
 
   @override
-  Future<void> saveUser(UserModel user) async {
-    await _prefs.setString(_userKey, jsonEncode(user.toMap()));
+  Future<void> saveUser(UserDto user) async {
+    await _prefs.setString(_userKey, jsonEncode(user.toJson()));
   }
 
   @override
-  Future<UserModel?> getStoredUser() async {
+  Future<UserDto?> getStoredUser() async {
     final json = _prefs.getString(_userKey);
     if (json == null) return null;
-    return UserModel.fromMap(jsonDecode(json) as Map<String, dynamic>);
+    return UserDto.fromJson(jsonDecode(json) as Map<String, dynamic>);
   }
 
   @override

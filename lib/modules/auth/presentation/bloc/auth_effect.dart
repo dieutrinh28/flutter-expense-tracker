@@ -15,6 +15,10 @@ class ShowErrorEffect extends AuthEffect {
   ShowErrorEffect(this.message);
 }
 
+class ResetPasswordSentEffect extends AuthEffect {
+  ResetPasswordSentEffect();
+}
+
 // Validation effect
 class ShowValidationErrorEffect extends AuthEffect {
   final Map<String, String> fieldErrors;

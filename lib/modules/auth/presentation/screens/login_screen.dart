@@ -7,7 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/typography.dart';
-import '../blocs/auth_bloc/auth_bloc.dart';
+import '../bloc/auth_bloc.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -32,6 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _handleEffect(AuthEffect effect) {
+    if (!mounted) return;
     switch (effect) {
       case NavigateToHomeEffect():
         context.go('/home');
@@ -49,6 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
           _emailError = fieldErrors['email'];
           _passwordError = fieldErrors['password'];
         });
+      case ResetPasswordSentEffect():
       case ShowLogoutSuccessEffect():
         break;
     }
@@ -159,9 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
-                      onPressed: () {
-                        // TODO: handle forgot password
-                      },
+                      onPressed: () => context.push('/reset-password'),
                       child: const Text('Forgot Password?'),
                     ),
                   ),
@@ -196,9 +196,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               fontWeight: FontWeight.bold,
                             ),
                             recognizer: TapGestureRecognizer()
-                              ..onTap = () {
-                                // TODO: navigate to sign up
-                              },
+                              ..onTap = () => context.push('/register'),
                           ),
                         ],
                       ),

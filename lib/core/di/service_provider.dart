@@ -1,3 +1,5 @@
+import 'package:expense_tracker/modules/auth/domain/usecases/register.dart';
+import 'package:expense_tracker/modules/auth/domain/usecases/reset_password.dart';
 import 'package:expense_tracker/modules/expense/data/datasources/mock_expense_local_ds.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -45,6 +47,8 @@ class ServiceProvider {
   static late final AuthLocalDataSource _authLocal;
   static late final AuthRepository _authRepo;
   static late final LoginUseCase _loginUseCase;
+  static late final RegisterUseCase _registerUseCase;
+  static late final ResetPasswordUseCase _resetPasswordUseCase;
   static late final LogoutUseCase _logoutUseCase;
   static late final CheckAuthUseCase _checkAuthUseCase;
 
@@ -73,6 +77,8 @@ class ServiceProvider {
     _authLocal = MockAuthLocalDataSource();
     _authRepo = AuthRepositoryImpl(remote: _authRemote, local: _authLocal);
     _loginUseCase = LoginUseCase(_authRepo);
+    _registerUseCase = RegisterUseCase(_authRepo);
+    _resetPasswordUseCase = ResetPasswordUseCase(_authRepo);
     _logoutUseCase = LogoutUseCase(_authRepo);
     _checkAuthUseCase = CheckAuthUseCase(_authRepo);
 
@@ -97,6 +103,8 @@ class ServiceProvider {
 
   // Auth
   static LoginUseCase get loginUseCase => _loginUseCase;
+  static RegisterUseCase get registerUseCase => _registerUseCase;
+  static ResetPasswordUseCase get resetPasswordUseCase => _resetPasswordUseCase;
   static LogoutUseCase get logoutUseCase => _logoutUseCase;
   static CheckAuthUseCase get checkAuthUseCase => _checkAuthUseCase;
 

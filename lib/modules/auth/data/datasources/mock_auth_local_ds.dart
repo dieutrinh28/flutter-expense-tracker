@@ -1,17 +1,17 @@
-import 'package:expense_tracker/modules/auth/data/models/user_model.dart';
+import 'package:expense_tracker/modules/auth/data/models/user_dto.dart';
 
 import 'auth_local_ds.dart';
 
 class MockAuthLocalDataSource implements AuthLocalDataSource {
-  UserModel? _storedUser;
+  UserDto? _storedUser;
 
   @override
-  Future<void> saveUser(UserModel user) async {
-    _storedUser = user;
+  Future<void> saveUser(UserDto dto) async {
+    _storedUser = dto;
   }
 
   @override
-  Future<UserModel?> getStoredUser() async {
+  Future<UserDto?> getStoredUser() async {
     return _storedUser;
   }
 

@@ -1,33 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'core/di/service_provider.dart';
 import 'core/theme/app_theme.dart';
 import 'app/routing/app_router.dart';
-import 'modules/auth/presentation/blocs/auth_bloc/auth_bloc.dart';
+import 'modules/auth/presentation/bloc/auth_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ServiceProvider.initialize();
-  runApp(BlocProvider(
-    create: (context) => AuthBloc(
-      loginUseCase: ServiceProvider.loginUseCase,
-      logoutUseCase: ServiceProvider.logoutUseCase,
-      checkAuthUseCase: ServiceProvider.checkAuthUseCase,
-      runner: ServiceProvider.blocSafeRunner,
-    )..add(const CheckAuthEvent()),
-    child: MyApp(),
-  ));
+
+  final authBloc = AuthBloc(
+    loginUseCase: ServiceProvider.loginUseCase,
+    registerUseCase: ServiceProvider.registerUseCase,
+    resetPasswordUseCase: ServiceProvider.resetPasswordUseCase,
+    logoutUseCase: ServiceProvider.logoutUseCase,
+    checkAuthUseCase: ServiceProvider.checkAuthUseCase,
+    runner: ServiceProvider.blocSafeRunner,
+  )..add(const CheckAuthEvent());
+
+  runApp(
+    BlocProvider.value(
+      value: authBloc,
+      child: MyApp(router: createAppRouter(authBloc)),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final GoRouter router;
+  const MyApp({super.key, required this.router});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'Expense Tracker',
       theme: AppTheme.lightTheme(),
-      routerConfig: appRouter,
+      routerConfig: router,
     );
   }
 }

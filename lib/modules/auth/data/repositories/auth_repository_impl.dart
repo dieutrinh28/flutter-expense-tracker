@@ -24,7 +24,22 @@ class AuthRepositoryImpl implements AuthRepository {
       password: password,
     );
     await _local.saveUser(userModel);
-    return userModel.toEntity();
+    return userModel.toDomain();
+  }
+
+  @override
+  Future<User> register({
+    required String email,
+    required String password,
+    required String name,
+  }) async {
+    final dto = await _remote.register(
+      email: email,
+      password: password,
+      name: name,
+    );
+    await _local.saveUser(dto);
+    return dto.toDomain();
   }
 
   @override
@@ -37,8 +52,13 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<void> resetPassword({required String email}) async {
+    await _remote.resetPassword(email: email);
+  }
+
+  @override
   Future<User?> getStoredUser() async {
     final stored = await _local.getStoredUser();
-    return stored?.toEntity();
+    return stored?.toDomain();
   }
 }

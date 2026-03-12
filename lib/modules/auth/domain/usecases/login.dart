@@ -1,7 +1,8 @@
 import 'package:expense_tracker/modules/auth/domain/entities/user.dart';
 import 'package:expense_tracker/modules/auth/domain/repositories/auth_repository.dart';
 
-import '../../../../core/errors/app_error.dart';
+import '../value_objects/email.dart';
+import '../value_objects/password.dart';
 
 class LoginUseCase {
   final AuthRepository _repository;
@@ -12,14 +13,12 @@ class LoginUseCase {
     required String email,
     required String password,
   }) async {
-    if (email.isEmpty || !email.contains('@')) {
-      throw ValidationError({'email': 'Invalid email format'});
-    }
+    final validEmail = Email.create(email);
+    final validPassword = Password.create(password);
 
-    if (password.length < 6) {
-      throw ValidationError({'password': 'Password too short'});
-    }
-
-    return _repository.login(email: email, password: password);
+    return _repository.login(
+      email: validEmail.value,
+      password: validPassword.value,
+    );
   }
 }

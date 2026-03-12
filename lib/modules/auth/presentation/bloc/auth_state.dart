@@ -27,6 +27,14 @@ class AuthLoggingOut extends AuthState {
   List<Object?> get props => [user];
 }
 
+class AuthRegistering extends AuthState {
+  const AuthRegistering();
+}
+
+class AuthResettingPassword extends AuthState {
+  const AuthResettingPassword();
+}
+
 class AuthAuthenticated extends AuthState {
   final User user;
 

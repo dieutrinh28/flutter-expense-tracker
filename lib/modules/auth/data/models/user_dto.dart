@@ -1,15 +1,16 @@
-import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 
 import '../../domain/entities/user.dart';
 
-class UserModel extends Equatable {
+@immutable
+class UserDto {
   final String id;
   final String email;
   final String name;
   final String? avatar;
   final String token;
 
-  const UserModel({
+  const UserDto({
     required this.id,
     required this.email,
     required this.name,
@@ -17,17 +18,17 @@ class UserModel extends Equatable {
     required this.token,
   });
 
-  factory UserModel.fromMap(Map<String, dynamic> map) {
-    return UserModel(
-      id: map['id'] as String,
-      email: map['email'] as String,
-      name: map['name'] as String,
-      avatar: map['avatar'] as String?,
-      token: map['token'] as String,
+  factory UserDto.fromJson(Map<String, dynamic> json) {
+    return UserDto(
+      id: json['id'] as String,
+      email: json['email'] as String,
+      name: json['name'] as String,
+      avatar: json['avatar'] as String?,
+      token: json['token'] as String,
     );
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
       'email': email,
@@ -37,26 +38,25 @@ class UserModel extends Equatable {
     };
   }
 
-  User toEntity() {
+  User toDomain() {
     return User(
       id: id,
       email: email,
       name: name,
       avatar: avatar,
-      token: token,
     );
   }
 
-  factory UserModel.fromEntity(User user) {
-    return UserModel(
+  factory UserDto.fromDomain(
+    User user, {
+    required String token,
+  }) {
+    return UserDto(
       id: user.id,
       email: user.email,
       name: user.name,
       avatar: user.avatar,
-      token: user.token,
+      token: token,
     );
   }
-
-  @override
-  List<Object?> get props => [id, email, name, avatar, token];
 }
