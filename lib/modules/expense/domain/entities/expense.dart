@@ -1,12 +1,14 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 
+@immutable
 class Expense extends Equatable {
   final String? id;
   final String title;
   final double amount;
   final String categoryId;
   final DateTime date;
-  final String? description;
+  final String? note;
   final DateTime createdAt;
   final DateTime? updatedAt;
 
@@ -16,7 +18,7 @@ class Expense extends Equatable {
     required this.amount,
     required this.categoryId,
     required this.date,
-    this.description,
+    this.note,
     required this.createdAt,
     this.updatedAt,
   });
@@ -27,7 +29,7 @@ class Expense extends Equatable {
     double? amount,
     String? categoryId,
     DateTime? date,
-    String? description,
+    String? note,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -37,47 +39,21 @@ class Expense extends Equatable {
       amount: amount ?? this.amount,
       categoryId: categoryId ?? this.categoryId,
       date: date ?? this.date,
-      description: description ?? this.description,
+      note: note ?? this.note,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'title': title,
-      'amount': amount,
-      'categoryId': categoryId,
-      'date': date.toIso8601String(),
-      'description': description,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt?.toIso8601String(),
-    };
-  }
-
-  factory Expense.fromJson(Map<String, dynamic> json) {
-    return Expense(
-      id: json['id']?.toString(),
-      title: json['title'],
-      amount: json['amount'].toDouble(),
-      categoryId: json['categoryId'].toString(),
-      date: DateTime.parse(json['date']),
-      description: json['description'],
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at']) : null,
-    );
-  }
-
   @override
   List<Object?> get props => [
-    id,
-    title,
-    amount,
-    categoryId,
-    date,
-    description,
-    createdAt,
-    updatedAt,
-  ];
+        id,
+        title,
+        amount,
+        categoryId,
+        date,
+        note,
+        createdAt,
+        updatedAt,
+      ];
 }

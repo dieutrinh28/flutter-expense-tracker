@@ -1,43 +1,43 @@
-import 'package:expense_tracker/modules/expense/domain/entities/expense_detail.dart';
-
 import '../../domain/entities/expense.dart';
+import '../../domain/entities/expense_detail.dart';
 import '../../domain/repositories/expense_repository.dart';
 import '../datasources/expense_local_ds.dart';
-import '../models/expense_model.dart';
+import '../models/expense_dto.dart';
 
 class ExpenseRepositoryImpl implements ExpenseRepository {
   final ExpenseLocalDataSource _local;
 
-  ExpenseRepositoryImpl({required ExpenseLocalDataSource local}) : _local = local;
+  ExpenseRepositoryImpl({required ExpenseLocalDataSource local})
+      : _local = local;
 
   @override
   Future<Expense> addExpense(Expense expense) async {
-    final model = ExpenseModel.fromEntity(expense);
-    return await _local.addExpense(model);
+    final dto = ExpenseDto.fromDomain(expense);
+    final saved = await _local.addExpense(dto);
+    return saved.toDomain();
   }
 
   @override
   Future<Expense> updateExpense(Expense expense) async {
-    final model = ExpenseModel.fromEntity(expense);
-    return await _local.updateExpense(model);
+    final dto = ExpenseDto.fromDomain(expense);
+    final saved = await _local.updateExpense(dto);
+    return saved.toDomain();
   }
 
   @override
   Future<List<Expense>> getExpenses() async {
     final models = await _local.getAllExpenses();
-    return models.map((m) => m.toEntity()).toList();
+    return models.map((m) => m.toDomain()).toList();
   }
 
   @override
   Future<ExpenseDetail?> getById(String id) async {
-    final expense = await _local.getById(id);
-    // todo:
-    return null;
+    final dto = await _local.getById(id);
+    return dto?.toDomain();
   }
 
   @override
-  Future<int> deleteExpense(String id) async {
-    return await _local.deleteExpense(id);
+  Future<void> deleteExpense(String id) async {
+    await _local.deleteExpense(id);
   }
-
 }

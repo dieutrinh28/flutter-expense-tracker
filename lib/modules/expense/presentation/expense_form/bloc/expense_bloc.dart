@@ -9,6 +9,7 @@ import '../../../domain/entities/expense_detail.dart';
 import '../../../domain/strategies/submit_strategy.dart';
 import '../../../domain/usecases/delete_expense.dart';
 import '../../../domain/usecases/get_expense.dart';
+import '../../../domain/value_objects/expense_input.dart';
 import '../config/form_config.dart';
 import '../config/form_config_builder.dart';
 import '../config/screen_mode.dart';
@@ -48,8 +49,6 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     }
   }
 
-
-
   final _effectController = StreamController<ExpenseEffect>.broadcast();
   Stream<ExpenseEffect> get effects => _effectController.stream;
 
@@ -58,20 +57,25 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   ExpenseDetail? _originalDetail;
 
   Future<void> _onInitialize(
-      InitializeForm event, Emitter<ExpenseState> emit) async {
+    InitializeForm event,
+    Emitter<ExpenseState> emit,
+  ) async {
     emit(ExpenseEditing(
       formData: ExpenseFormData.empty(),
       formConfig: formConfig,
     ));
   }
 
-  Future<void> _onLoad(LoadExpense event, Emitter<ExpenseState> emit) async {
+  Future<void> _onLoad(
+    LoadExpense event,
+    Emitter<ExpenseState> emit,
+  ) async {
     await runner.run(
       stateEmitter: emit,
       effectEmitter: _effectController.add,
       loadingState: const ExpenseLoading(),
       action: () async {
-        final detail = await getExpense.execute(event.id);
+        final detail = await getExpense.call(event.id);
         _originalDetail = detail;
 
         // Convert detail back to formData for the form
@@ -83,14 +87,17 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
           date: detail?.date ?? DateTime.now(),
         );
 
-        emit(ExpenseLoaded(
-          expense: detail,
-          formData: formData,
-          formConfig: formConfig,
-        ));
-
         if (mode.isEditable) {
-           emit(ExpenseEditing(formData: formData, formConfig: formConfig));
+          emit(ExpenseEditing(
+            formData: formData,
+            formConfig: formConfig,
+          ));
+        } else {
+          emit(ExpenseLoaded(
+            expense: detail,
+            formData: formData,
+            formConfig: formConfig,
+          ));
         }
       },
       onError: (error) => ExpenseError(message: error.message),
@@ -103,7 +110,9 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   }
 
   Future<void> _onFieldChanged(
-      FieldChanged event, Emitter<ExpenseState> emit) async {
+    FieldChanged event,
+    Emitter<ExpenseState> emit,
+  ) async {
     final current = _currentFormData;
     if (current == null) return;
 
@@ -125,15 +134,28 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   }
 
   Future<void> _onSubmit(
-      SubmitExpense event, Emitter<ExpenseState> emit) async {
+    SubmitExpense event,
+    Emitter<ExpenseState> emit,
+  ) async {
     final current = _currentFormData;
     if (current == null) return;
 
     await runner.run(
       stateEmitter: emit,
       effectEmitter: _effectController.add,
+      loadingState: ExpenseSaving(formData: current, formConfig: formConfig),
       action: () async {
-        final saved = await submitStrategy.execute(current);
+        final input = ExpenseInput(
+          id: current.id,
+          title: current.title,
+          amount: current.amount,
+          categoryId: current.categoryId,
+          date: current.date ?? DateTime.now(),
+          note: current.note,
+          paymentMethod: current.paymentMethod,
+          createdAt: DateTime.now(),
+        );
+        final saved = await submitStrategy.execute(input);
         emit(ExpenseSaved(saved: saved));
         _effectController
             .add(const ShowSuccessToast(message: 'Expense saved.'));
@@ -148,22 +170,67 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   }
 
   Future<void> _onDeleteRequested(
-      DeleteExpenseRequested event, Emitter<ExpenseState> emit) async {
+    DeleteExpenseRequested event,
+    Emitter<ExpenseState> emit,
+  ) async {
     _effectController.add(ShowDeleteConfirmation(expenseId: event.id));
   }
 
   Future<void> _onConfirmDelete(
-      ConfirmDeleteExpense event, Emitter<ExpenseState> emit) async {}
+    ConfirmDeleteExpense event,
+    Emitter<ExpenseState> emit,
+  ) async {
+    await runner.run(
+      stateEmitter: emit,
+      effectEmitter: _effectController.add,
+      loadingState: const ExpenseLoading(),
+      action: () async {
+        await deleteExpense.call(event.id);
+        _effectController
+            .add(const ShowSuccessToast(message: 'Expense deleted.'));
+        _effectController.add(const NavigateBack());
+      },
+      onError: (error) => ExpenseError(message: error.message),
+      errorEffect: (error) => ShowErrorDialog(
+        title: 'Delete Failed',
+        body: error.message,
+      ),
+      logContext: {'expenseId': event.id},
+    );
+  }
 
   Future<void> _onEditTapped(
-      EditTapped event, Emitter<ExpenseState> emit) async {
+    EditTapped event,
+    Emitter<ExpenseState> emit,
+  ) async {
     final id = _currentFormData?.id;
     if (id == null) return;
     _effectController.add(NavigateToEdit(expenseId: id));
   }
 
   Future<void> _onDiscardChanges(
-      DiscardChanges event, Emitter<ExpenseState> emit) async {}
+    DiscardChanges event,
+    Emitter<ExpenseState> emit,
+  ) async {
+    if (_originalDetail == null) {
+      _effectController.add(const NavigateBack());
+      return;
+    }
+
+    // todo: create func convert ExpenseDetail to ExpenseFormData
+    final formData = ExpenseFormData(
+      id: _originalDetail!.id,
+      title: _originalDetail!.title,
+      amount: _originalDetail!.amount,
+      categoryId: _originalDetail!.categoryId,
+      date: _originalDetail!.date,
+    );
+    emit(ExpenseLoaded(
+      expense: _originalDetail,
+      formData: formData,
+      formConfig: formConfig,
+    ));
+  }
 
   ExpenseFormData? get _currentFormData => switch (state) {
         ExpenseEditing(:final formData) => formData,

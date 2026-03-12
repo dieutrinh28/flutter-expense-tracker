@@ -10,6 +10,5 @@ abstract class ExpenseRepository {
 
   Future<ExpenseDetail?> getById(String id);
 
-  Future<int> deleteExpense(String id);
-
+  Future<void> deleteExpense(String id);
 }

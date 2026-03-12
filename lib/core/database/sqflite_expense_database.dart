@@ -1,6 +1,8 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import '../../modules/expense/domain/entities/expense.dart';
+
+import '../../modules/expense/data/models/expense_detail_dto.dart';
+import '../../modules/expense/data/models/expense_dto.dart';
 import 'expense_database.dart';
 
 class SQLiteExpenseDatabase implements ExpenseDatabase {
@@ -38,9 +40,13 @@ class SQLiteExpenseDatabase implements ExpenseDatabase {
         amount REAL NOT NULL,
         categoryId TEXT NOT NULL,
         date TEXT NOT NULL,
-        description TEXT,
+        note TEXT,
         created_at TEXT NOT NULL,
-        updated_at TEXT
+        updated_at TEXT,
+        -- detail fields
+        receipt_url TEXT,
+        merchant TEXT,
+        tags TEXT
       )
     ''');
   }
@@ -48,7 +54,7 @@ class SQLiteExpenseDatabase implements ExpenseDatabase {
   // CRUD Operations for Expense
 
   @override
-  Future<Expense> insertExpense(Expense expense) async {
+  Future<ExpenseDto> insertExpense(ExpenseDto expense) async {
     final db = await database;
     final id = expense.id ?? DateTime.now().millisecondsSinceEpoch.toString();
     final expenseWithId = expense.copyWith(id: id);
@@ -62,7 +68,7 @@ class SQLiteExpenseDatabase implements ExpenseDatabase {
   }
 
   @override
-  Future<Expense?> getExpenseById(String id) async {
+  Future<ExpenseDetailDto?> getExpenseById(String id) async {
     final db = await database;
     final maps = await db.query(
       'expenses',
@@ -71,18 +77,18 @@ class SQLiteExpenseDatabase implements ExpenseDatabase {
     );
 
     if (maps.isEmpty) return null;
-    return Expense.fromJson(maps.first);
+    return ExpenseDetailDto.fromJson(maps.first);
   }
 
   @override
-  Future<List<Expense>> getAllExpenses() async {
+  Future<List<ExpenseDto>> getAllExpenses() async {
     final db = await database;
     final maps = await db.query('expenses', orderBy: 'date DESC');
-    return maps.map((map) => Expense.fromJson(map)).toList();
+    return maps.map((map) => ExpenseDto.fromJson(map)).toList();
   }
 
   @override
-  Future<Expense> updateExpense(Expense expense) async {
+  Future<ExpenseDto> updateExpense(ExpenseDto expense) async {
     final db = await database;
 
     final updatedExpense = expense.copyWith(updatedAt: DateTime.now());
@@ -98,13 +104,14 @@ class SQLiteExpenseDatabase implements ExpenseDatabase {
   }
 
   @override
-  Future<int> deleteExpense(String id) async {
+  Future<void> deleteExpense(String id) async {
     final db = await database;
-    return await db.delete(
+    final count = await db.delete(
       'expenses',
       where: 'id = ?',
       whereArgs: [id],
     );
+    if (count == 0) throw Exception('Expense not found: $id');
   }
 
   @override

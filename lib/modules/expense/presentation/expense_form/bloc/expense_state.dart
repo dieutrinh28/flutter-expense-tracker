@@ -37,8 +37,12 @@ class ExpenseEditing extends ExpenseState {
 }
 
 class ExpenseSaving extends ExpenseState {
-  const ExpenseSaving({required this.formData});
+  const ExpenseSaving({
+    required this.formData,
+    required this.formConfig,
+  });
   final ExpenseFormData formData;
+  final FormConfig formConfig;
 }
 
 class ExpenseSaved extends ExpenseState {

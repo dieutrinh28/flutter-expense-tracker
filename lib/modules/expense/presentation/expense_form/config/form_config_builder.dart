@@ -40,18 +40,21 @@ class FormConfigBuilder {
           isVisible: true,
           isEditable: editable,
           isRequired: editable,
+          validators: editable ? [Validators.required] : [],
         ),
         ExpenseFieldKey.category: FieldConfig(
           fieldKey: ExpenseFieldKey.category,
           isVisible: true,
           isEditable: editable,
           isRequired: editable,
+          validators: editable ? [Validators.required] : [],
         ),
         ExpenseFieldKey.date: FieldConfig(
           fieldKey: ExpenseFieldKey.date,
           isVisible: true,
           isEditable: editable,
           isRequired: editable,
+          validators: editable ? [Validators.required] : [],
         ),
         ExpenseFieldKey.paymentMethod: FieldConfig(
           fieldKey: ExpenseFieldKey.paymentMethod,

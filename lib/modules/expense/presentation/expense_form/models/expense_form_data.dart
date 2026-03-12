@@ -32,14 +32,16 @@ class ExpenseFormData extends Equatable {
         date: DateTime.now(),
       );
 
+  static const _remove = Object();
+
   ExpenseFormData copyWith({
     String? id,
     double? amount,
     String? title,
     String? categoryId,
     DateTime? date,
-    String? paymentMethod,
-    String? note,
+    Object? paymentMethod = _remove,
+    Object? note = _remove,
     String? receiptUrl,
     String? merchant,
     List<String>? tags,
@@ -50,8 +52,10 @@ class ExpenseFormData extends Equatable {
       title: title ?? this.title,
       categoryId: categoryId ?? this.categoryId,
       date: date ?? this.date,
-      paymentMethod: paymentMethod ?? this.paymentMethod,
-      note: note ?? this.note,
+      paymentMethod: paymentMethod == _remove
+          ? this.paymentMethod
+          : paymentMethod as String?,
+      note: note == _remove ? this.note : note as String?,
       receiptUrl: receiptUrl ?? this.receiptUrl,
       merchant: merchant ?? this.merchant,
       tags: tags ?? this.tags,

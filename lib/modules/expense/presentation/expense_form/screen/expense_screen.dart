@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../bloc/expense_bloc.dart';
 import '../config/form_config.dart';
@@ -35,7 +36,6 @@ class _ExpenseScreenBody extends StatefulWidget {
   final String? expenseId;
 
   const _ExpenseScreenBody({
-    super.key,
     required this.mode,
     this.expenseId,
   });
@@ -58,21 +58,16 @@ class _ExpenseScreenBodyState extends State<_ExpenseScreenBody> {
   }
 
   void _handleEffect(ExpenseEffect effect) {
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     switch (effect) {
       case NavigateBack():
         Navigator.of(context).pop();
       case NavigateToEdit(:final expenseId):
-        // Navigate to edit screen or update current bloc state if preferred.
-        // For simplicity, we just push a new edit screen.
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => ExpenseScreen(
-              mode: ScreenMode.edit,
-              expenseId: expenseId,
-            ),
-          ),
-        );
+        context.pushNamed('expense_form',
+            pathParameters: {'mode': 'edit'},
+            queryParameters: {'id': expenseId});
       case ShowSuccessToast(:final message):
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -83,12 +78,12 @@ class _ExpenseScreenBodyState extends State<_ExpenseScreenBody> {
       case ShowErrorDialog(:final title, :final body):
         showDialog(
           context: context,
-          builder: (context) => AlertDialog(
+          builder: (dialogContext) => AlertDialog(
             title: Text(title),
             content: Text(body),
             actions: [
               TextButton(
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () => Navigator.of(dialogContext).pop(),
                 child: const Text('OK'),
               ),
             ],
@@ -97,20 +92,23 @@ class _ExpenseScreenBodyState extends State<_ExpenseScreenBody> {
       case ShowDeleteConfirmation(:final expenseId):
         showDialog(
           context: context,
-          builder: (context) => AlertDialog(
+          builder: (alertContext) => AlertDialog(
             title: const Text('Delete Expense'),
-            content: const Text('Are you sure you want to delete this expense?'),
+            content:
+                const Text('Are you sure you want to delete this expense?'),
             actions: [
               TextButton(
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () => Navigator.of(alertContext).pop(),
                 child: const Text('Cancel'),
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop();
-                  context.read<ExpenseBloc>().add(ConfirmDeleteExpense(id: expenseId));
+                  final bloc = context.read<ExpenseBloc>();
+                  Navigator.of(alertContext).pop();
+                  bloc.add(ConfirmDeleteExpense(id: expenseId));
                 },
-                child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                child:
+                    const Text('Delete', style: TextStyle(color: Colors.red)),
               ),
             ],
           ),
@@ -133,7 +131,7 @@ class _ExpenseScreenBodyState extends State<_ExpenseScreenBody> {
           builder: (context, state) => switch (state) {
             ExpenseInitial() => const _LoadingView(),
             ExpenseLoading() => const _LoadingView(),
-            ExpenseSaved() => const _LoadingView(),
+            ExpenseSaved() => const SizedBox.shrink(),
             ExpenseLoaded(:final formData, :final formConfig) => _ContentView(
                 mode: widget.mode,
                 formData: formData,
@@ -152,10 +150,10 @@ class _ExpenseScreenBodyState extends State<_ExpenseScreenBody> {
                 isSaving: false,
                 validationErrors: validationErrors,
               ),
-            ExpenseSaving(:final formData) => _ContentView(
+            ExpenseSaving(:final formData, :final formConfig) => _ContentView(
                 mode: widget.mode,
                 formData: formData,
-                formConfig: context.read<ExpenseBloc>().formConfig,
+                formConfig: formConfig,
                 isSaving: true,
               ),
             ExpenseError(:final message) => _ErrorView(message: message),
@@ -210,7 +208,9 @@ class _ContentView extends StatelessWidget {
             mode: mode,
             isSaving: isSaving,
             onSave: () => bloc.add(const SubmitExpense()),
-            onEdit: () => bloc.add(const EditTapped()),
+            onEdit: () {
+              bloc.add(const EditTapped());
+            },
             onDelete: () {
               if (formData.id != null) {
                 bloc.add(DeleteExpenseRequested(id: formData.id!));

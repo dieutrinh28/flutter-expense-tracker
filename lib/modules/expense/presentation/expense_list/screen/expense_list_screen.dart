@@ -351,115 +351,124 @@ class _ExpenseCard extends StatelessWidget {
     final categoryBgColor =
         ColorPalette.getCategoryLightColor(expense.categoryId);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: ColorPalette.cardBackground,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
-        border: Border.all(
-          color: ColorPalette.borderColor,
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: ColorPalette.black04,
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+    return InkWell(
+      onTap: () {
+        context.pushNamed(
+          'expense_form',
+          pathParameters: {'mode': 'view'},
+          queryParameters: {'id': expense.id}
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: ColorPalette.cardBackground,
+          borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
+          border: Border.all(
+            color: ColorPalette.borderColor,
+            width: 1,
           ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Row(
-          children: [
-            // Category Icon/Badge
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: categoryBgColor,
-                borderRadius: BorderRadius.circular(AppSpacing.radiusSmall),
-              ),
-              child: Center(
-                child: _getCategoryIcon(expense.categoryId, categoryColor),
-              ),
+          boxShadow: [
+            BoxShadow(
+              color: ColorPalette.black04,
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
-            const SizedBox(width: AppSpacing.md),
-            // Expense Details
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Row(
+            children: [
+              // Category Icon/Badge
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: categoryBgColor,
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusSmall),
+                ),
+                child: Center(
+                  child: _getCategoryIcon(expense.categoryId, categoryColor),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              // Expense Details
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      expense.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.body.copyWith(
+                        color: ColorPalette.primaryText,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Wrap(
+                      spacing: AppSpacing.sm,
+                      runSpacing: AppSpacing.xs,
+                      children: [
+                        // Category Badge
+                        Container(
+                          decoration: BoxDecoration(
+                            color: categoryBgColor,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.sm,
+                            vertical: AppSpacing.xs,
+                          ),
+                          child: Text(
+                            expense.categoryId,
+                            style: AppTypography.caption.copyWith(
+                              color: categoryColor,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        // Date
+                        Text(
+                          _formatDate(expense.date),
+                          style: AppTypography.caption.copyWith(
+                            color: ColorPalette.tertiaryText,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              // Amount
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    expense.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    '\$${expense.amount.toStringAsFixed(2)}',
                     style: AppTypography.body.copyWith(
                       color: ColorPalette.primaryText,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.xs),
-                  Wrap(
-                    spacing: AppSpacing.sm,
-                    runSpacing: AppSpacing.xs,
-                    children: [
-                      // Category Badge
-                      Container(
-                        decoration: BoxDecoration(
-                          color: categoryBgColor,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.sm,
-                          vertical: AppSpacing.xs,
-                        ),
-                        child: Text(
-                          expense.categoryId,
-                          style: AppTypography.caption.copyWith(
-                            color: categoryColor,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                  if (expense.note != null &&
+                      expense.note!.isNotEmpty)
+                    Text(
+                      'Has note',
+                      style: AppTypography.caption.copyWith(
+                        color: ColorPalette.tertiaryText,
                       ),
-                      // Date
-                      Text(
-                        _formatDate(expense.date),
-                        style: AppTypography.caption.copyWith(
-                          color: ColorPalette.tertiaryText,
-                        ),
-                      ),
-                    ],
-                  ),
+                    )
+                  else
+                    const SizedBox(height: 16),
                 ],
               ),
-            ),
-            const SizedBox(width: AppSpacing.md),
-            // Amount
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  '\$${expense.amount.toStringAsFixed(2)}',
-                  style: AppTypography.body.copyWith(
-                    color: ColorPalette.primaryText,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                if (expense.description != null &&
-                    expense.description!.isNotEmpty)
-                  Text(
-                    'Has note',
-                    style: AppTypography.caption.copyWith(
-                      color: ColorPalette.tertiaryText,
-                    ),
-                  )
-                else
-                  const SizedBox(height: 16),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

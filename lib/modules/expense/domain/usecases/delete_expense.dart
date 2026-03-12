@@ -1,11 +1,11 @@
 import '../repositories/expense_repository.dart';
 
 class DeleteExpense {
-  final ExpenseRepository repository;
+  final ExpenseRepository _repository;
 
-  DeleteExpense(this.repository);
+  const DeleteExpense(this._repository);
 
-  Future<int> call(String id) async {
-    return await repository.deleteExpense(id);
+  Future<void> call(String id) async {
+    return await _repository.deleteExpense(id);
   }
 }

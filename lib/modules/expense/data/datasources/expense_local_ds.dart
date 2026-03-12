@@ -1,51 +1,43 @@
 import '../../../../core/database/expense_database.dart';
-import '../../../../core/database/sqflite_expense_database.dart';
-import '../../domain/entities/expense.dart';
-import '../models/expense_model.dart';
+import '../models/expense_detail_dto.dart';
+import '../models/expense_dto.dart';
 
 abstract class ExpenseLocalDataSource {
-  Future<Expense> addExpense(ExpenseModel expense);
-  Future<Expense> updateExpense(ExpenseModel expense);
-  Future<List<ExpenseModel>> getAllExpenses();
-  Future<ExpenseModel?> getById(String id);
-  Future<int> deleteExpense(String id);
+  Future<ExpenseDto> addExpense(ExpenseDto expense);
+  Future<ExpenseDto> updateExpense(ExpenseDto expense);
+  Future<List<ExpenseDto>> getAllExpenses();
+  Future<ExpenseDetailDto?> getById(String id);
+  Future<void> deleteExpense(String id);
 }
 
 class ExpenseLocalDataSourceImpl implements ExpenseLocalDataSource {
   final ExpenseDatabase _dbService;
 
-  ExpenseLocalDataSourceImpl({ExpenseDatabase? dbService})
-      : _dbService = dbService ?? SQLiteExpenseDatabase();
+  ExpenseLocalDataSourceImpl({required ExpenseDatabase dbService})
+      : _dbService = dbService;
 
   @override
-  Future<Expense> addExpense(ExpenseModel expense) async {
-    return await _dbService.insertExpense(expense.toEntity());
+  Future<ExpenseDto> addExpense(ExpenseDto expense) async {
+    return await _dbService.insertExpense(expense);
   }
 
   @override
-  Future<Expense> updateExpense(ExpenseModel expense) async {
-    return await _dbService.updateExpense(expense.toEntity());
+  Future<ExpenseDto> updateExpense(ExpenseDto expense) async {
+    return await _dbService.updateExpense(expense);
   }
 
   @override
-  Future<List<ExpenseModel>> getAllExpenses() async {
-    final list = await _dbService.getAllExpenses();
-    return list.map((e) => ExpenseModel.fromEntity(e)).toList();
+  Future<List<ExpenseDto>> getAllExpenses() async {
+    return await _dbService.getAllExpenses();
   }
 
   @override
-  Future<ExpenseModel?> getById(String id) async {
-    final expense = await _dbService.getExpenseById(id);
-    if (expense != null) {
-      return ExpenseModel.fromEntity(expense);
-    }
-    return null;
+  Future<ExpenseDetailDto?> getById(String id) async {
+    return await _dbService.getExpenseById(id);
   }
 
   @override
-  Future<int> deleteExpense(String id) async {
-    return await _dbService.deleteExpense(id);
+  Future<void> deleteExpense(String id) async {
+    await _dbService.deleteExpense(id);
   }
-
 }
-

@@ -1,6 +1,6 @@
-import '../../presentation/expense_form/models/expense_form_data.dart';
 import '../entities/expense.dart';
 import '../usecases/update_expense.dart';
+import '../value_objects/expense_input.dart';
 import 'submit_strategy.dart';
 
 class UpdateExpenseStrategy implements SubmitStrategy {
@@ -8,15 +8,17 @@ class UpdateExpenseStrategy implements SubmitStrategy {
   final UpdateExpense _useCase;
 
   @override
-  Future<Expense> execute(ExpenseFormData formData) async {
-    if (formData.id == null) throw ArgumentError('id required for update');
-    // todo:
+  Future<Expense> execute(ExpenseInput input) async {
+    if (input.id == null) throw ArgumentError('id required for update');
     final expense = Expense(
-      title: "",
-      amount: 0,
-      categoryId: 'Food',
-      date: DateTime.now(),
-      createdAt: DateTime.now(),
+      id: input.id,
+      title: input.title,
+      amount: input.amount,
+      categoryId: input.categoryId,
+      date: input.date,
+      note: input.note,
+      createdAt: input.createdAt ?? DateTime.now(),
+      updatedAt: DateTime.now(),
     );
     return _useCase.call(expense);
   }

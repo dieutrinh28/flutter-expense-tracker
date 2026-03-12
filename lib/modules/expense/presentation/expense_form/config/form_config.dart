@@ -28,6 +28,7 @@ class FieldConfig {
         isVisible: isVisible ?? this.isVisible,
         isEditable: isEditable ?? this.isEditable,
         isRequired: isRequired,
+        validators: validators,
       );
 }
 
